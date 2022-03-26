@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standard Beagle Game</title>
+</head>
+
+<body onload="startGame()">
+    <script>
+
+        var myGamePiece;
+        var myFloor;
+        var myObstacle;
+
+        function startGame() {
+            myGameArea.start();
+            myGamePiece = new component(30, 30, "red", 10, 120);
+            myObstacle = new obstacle(20, 40, "blue", 450, 238);
+            myFloor = new component(489, 20, "green", 10, 268);
+        }
+
+        var myGameArea = {
+            canvas: document.createElement("canvas"),
+
+            start: function () {
+                this.canvas.width = 480;
+                this.canvas.height = 270;
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.interval = setInterval(updateGameArea, 20);
+                window.addEventListener('keydown', function (e) {
+                    myGameArea.key = e.keyCode;
+                    if (myGameArea.key === 32) {
+                        jump()
+                    }
+
+                })
+                window.addEventListener('keyup', function (e) {
+                    myGameArea.key = false;
+                })
+            },
+            clear: function () {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+        }
+
+        function component(width, height, color, x, y) {
+            this.width = width;
+            this.height = height;
+            this.speedX = 0;
+            this.speedY = 1;
+            this.x = x;
+            this.y = y;
+            this.jumpCount = 0;
+            this.maxJump = 3;
+            this.jump1 = function () {
+                if (this.jumpCount + 1 < this.maxJump) {
+                    this.jumpCount += 1;
+                    this.speedY = -14;
+                }
+            }
+            this.crashWith = function (otherobj) {
+                var prediction = 0.5;
+                var myleft = this.x;
+                var myright = this.x + (this.width);
+                var mytop = this.y;
+                var mybottom = this.y + (this.height);
+                var otherleft = otherobj.x;
+                var otherright = otherobj.x + (otherobj.width);
+                var othertop = otherobj.y;
+                var otherbottom = otherobj.y + (otherobj.height);
+                var crash = true;
+
+                if ((mybottom + prediction < othertop - prediction) ||
+                    (mytop - prediction > otherbottom + prediction) ||
+                    (myright + prediction < otherleft - prediction) ||
+                    (myleft - prediction > otherright + prediction)) {
+                    crash = false;
+
+                }
+
+                return crash;
+            }
+            this.update = function () {
+                ctx = myGameArea.context;
+                ctx.fillStyle = color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            this.newPos = function () {
+                this.x += this.speedX;
+                this.y += this.speedY;
+            }
+            this.gravity = function (collision) {
+
+                if (collision) {
+                    myGamePiece.speedY = 0;
+                    myGamePiece.jumpCount = 0;
+                    myGamePiece.y = 269 - myGamePiece.height;
+                } else if (myGamePiece.speedY <= 7) {
+                    myGamePiece.speedY += 1;
+                    console.log(myGamePiece.speedY)
+                }
+
+            }
+        }
+        function obstacle(width, height, color, x, y) {
+            this.width = width;
+            this.height = height;
+            this.speedX = -5;
+            this.speedY = 0;
+            this.x = x;
+            this.y = y;
+
+
+
+            this.update = function () {
+                ctx = myGameArea.context;
+                ctx.fillStyle = color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+            }
+            this.newPos = function () {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0) {
+                    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+                }
+
+            }
+
+
+        }
+
+        function jump() {
+            myGamePiece.jump1();
+        }
+
+
+
+        function moveup() {
+            myGamePiece.speedY -= 1;
+        }
+
+        function movedown() {
+            myGamePiece.speedY += 1;
+        }
+
+        function moveleft() {
+            myGamePiece.speedX -= 1;
+        }
+
+        function moveright() {
+            myGamePiece.speedX += 1;
+        }
+
+
+
+        function updateGameArea() {
+
+            myGameArea.clear();
+            myGamePiece.newPos();
+            myObstacle.newPos();
+            myGamePiece.gravity(myGamePiece.crashWith(myFloor));
+            myFloor.update();
+            myGamePiece.update();
+            myObstacle.update();
+
+        }
+
+
+
+    </script>
+
+    <p>We have created a game area! (or at least an empty canvas)</p>
+
+</body>
+
+</html>
