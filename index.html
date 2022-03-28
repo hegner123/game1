@@ -7,6 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Standard Beagle Game</title>
     <style>
+        body {
+            min-height: 80vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column-reverse;
+        }
+
         .btn {
             padding: 1rem;
             color: black;
@@ -14,12 +23,17 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        .off {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
 
-
+    <span id='start' class="btn start" onclick="startGame()">Start</span>
+    <span id='reset' class="btn reset off" onclick="resetGame()">reset</span>
     <script>
 
         var myGamePiece;
@@ -27,6 +41,8 @@
         var myObstacle;
         var myObstacles = [];
         var global = 0;
+        var startBtn = document.querySelector('#start');
+        var resetBtn = document.querySelector('#reset')
 
 
 
@@ -43,6 +59,8 @@
         var myGameArea = {
             canvas: document.createElement("canvas"),
             start: function () {
+                startBtn.classList.add('off');
+                resetBtn.classList.remove('off')
                 this.startInterval()
                 this.frameNo = global;
                 window.addEventListener('keydown', function (e) {
@@ -202,9 +220,8 @@
     </script>
 
 
-    <span class="btn start" onclick="startGame()">Start</span>
-    <span class="btn reset" onclick="resetGame()">reset</span>
-    <button onclick="jump()">jump</button>
+
+
 
 </body>
 
