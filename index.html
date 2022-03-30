@@ -5,219 +5,72 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+
+    </script>
     <title>Standard Beagle Game</title>
     <style>
+        :root {
+            --color1: #afa98d;
+            --color2: #182825;
+            --color3: #016fb9;
+            --color4: #22aed1;
+            --color5: #6d8ea0;
+
+        }
+
+        * {
+            font-family: sans-serif;
+        }
+
         body {
             min-height: 80vh;
-
+            background: var(--color2);
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column-reverse;
+            flex-direction: column;
         }
 
         .btn {
+            margin-top: 2rem;
             padding: 1rem;
             color: black;
-            background: aquamarine;
+            background: var(--color4);
             border-radius: 5px;
             cursor: pointer;
+            max-width: max-content;
         }
 
         .off {
             display: none;
         }
+
+        .screen {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+
+        .page-header {
+            color: var(--color3)
+        }
     </style>
 </head>
 
 <body>
+    <h1 class="page-header">Beagle Jump</h1>
+    <div id="screen" class="screen">
+        <span id='start' class="btn start" onclick="startGame()">Start</span>
+        <span id='reset' class="btn reset off" onclick="resetGame()">Reset</span>
+    </div>
 
-    <span id='start' class="btn start" onclick="startGame()">Start</span>
-    <span id='reset' class="btn reset off" onclick="resetGame()">reset</span>
-    <script>
-
-        var myGamePiece;
-        var myFloor;
-        var myObstacle;
-        var myObstacles = [];
-        var global = 0;
-        var startBtn = document.querySelector('#start');
-        var resetBtn = document.querySelector('#reset')
-
-
-
-        function startGame() {
-            myGameArea.start();
-            myGamePiece = new component(30, 30, 10, 120);
-            myFloor = new obstacle(489, 20, "green", 10, 268);
-        }
-        function resetGame() {
-            myObstacles = []
-            myGameArea.reset();
-        }
-
-        var myGameArea = {
-            canvas: document.createElement("canvas"),
-            start: function () {
-                startBtn.classList.add('off');
-                resetBtn.classList.remove('off')
-                this.startInterval()
-                this.frameNo = global;
-                window.addEventListener('keydown', function (e) {
-                    myGameArea.key = e.keyCode;
-                    if (myGameArea.key === 32) {
-                        jump()
-                    }
-                })
-                window.addEventListener('keyup', function (e) {
-                    myGameArea.key = false;
-                })
-            },
-            reset: function () {
-                this.canvas.remove();
-                this.canvas = document.createElement("canvas")
-                this.stop();
-                this.startInterval(this.canvas)
-
-            },
-            clear: function () {
-                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            },
-            stop: function () {
-                clearInterval(this.interval);
-            },
-            startInterval: function () {
-                this.canvas.width = 480;
-                this.canvas.height = 270;
-                this.context = this.canvas.getContext("2d");
-                this.interval = setInterval(updateGameArea, 20);
-                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-            }
-        }
-
-        function component(width, height, x, y) {
-            this.width = width;
-            this.height = height;
-            this.speedX = global;
-            this.speedY = 1;
-            this.x = x;
-            this.y = y;
-            this.jumpCount = global;
-            this.maxJump = 3;
-
-            this.jump1 = function () {
-                console.log(this.jumpCount)
-                if (this.jumpCount + 1 < this.maxJump) {
-                    this.jumpCount += 1;
-                    this.speedY = -7;
-                }
-            }
-            this.crashWith = function (otherobj) {
-                var prediction = 0.5;
-                var myleft = this.x;
-                var myright = this.x + (this.width);
-                var mytop = this.y;
-                var mybottom = this.y + (this.height);
-                var otherleft = otherobj.x;
-                var otherright = otherobj.x + (otherobj.width);
-                var othertop = otherobj.y;
-                var otherbottom = otherobj.y + (otherobj.height);
-                var crash = true;
-
-                if ((mybottom + prediction < othertop - prediction) ||
-                    (mytop - prediction > otherbottom + prediction) ||
-                    (myright + prediction < otherleft - prediction) ||
-                    (myleft - prediction > otherright + prediction)) {
-                    crash = false;
-
-                }
-
-                return crash;
-            }
-            this.update = function () {
-                var img1 = new Image(); // Image constructor
-                img1.src = './assets/35500600.png';
-                img1.alt = 'alt';
-                var img2 = new Image(); // Image constructor
-                img2.src = './assets/35500612.png';
-                img2.alt = 'alt';
-                ctx = myGameArea.context;
-                ctx.drawImage(img1, this.x, this.y, this.width, this.height);
-
-            }
-            this.newPos = function () {
-                this.x += this.speedX;
-                this.y += this.speedY;
-            }
-            this.gravity = function (collision) {
-                if (collision) {
-                    myGamePiece.speedY = global;
-                    myGamePiece.jumpCount = global;
-                    myGamePiece.y = 269 - myGamePiece.height;
-                } else if (myGamePiece.speedY <= 7) {
-                    myGamePiece.speedY += 0.5;
-                }
-            }
-        }
-
-        function obstacle(width, height, color, x, y) {
-            this.width = width;
-            this.height = height;
-            this.speedX = -5;
-            this.speedY = global;
-            this.x = x;
-            this.y = y;
-            this.update = function () {
-                ctx = myGameArea.context;
-                ctx.fillStyle = color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
-            this.newPos = function () {
-                this.x += this.speedX;
-                this.y += this.speedY;
-            }
-        }
-
-        function jump() {
-            myGamePiece.jump1();
-        }
-
-        function everyinterval(n) {
-            if ((myGameArea.frameNo / n) % 1 == global) { return true; }
-            return false;
-        }
-
-        function updateGameArea() {
-            var x, height, gap, minHeight, maxHeight, minGap, maxGap;
-            for (i = 0; i < myObstacles.length; i += 1) {
-                if (myGamePiece.crashWith(myObstacles[i])) {
-                    myGameArea.stop();
-                    return;
-                }
-            }
-            myGameArea.clear();
-            myGameArea.frameNo += 1;
-            if (myGameArea.frameNo == 1 || everyinterval(150)) {
-                x = myGameArea.canvas.width;
-                minHeight = 200;
-                maxHeight = 250;
-                height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
-                myObstacles.push(new obstacle(10, x - height, "green", x, height));
-            }
-            for (i = 0; i < myObstacles.length; i += 1) {
-                myObstacles[i].newPos();
-                myObstacles[i].update();
-            }
-            myGamePiece.newPos();
-            myGamePiece.gravity(myGamePiece.crashWith(myFloor));
-            myFloor.update();
-            myGamePiece.update();
-        }
-
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script type="application/javascript">
 
     </script>
+    <script src="script.js"> </script>
 
 
 
